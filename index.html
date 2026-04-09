@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Type Soul Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <h1>Type Soul Builder</h1>
+        </div>
+        <div class="hero-actions">
+          <label class="sort-control" for="clan-sort">
+            <span>Sort Clans</span>
+            <select id="clan-sort" class="sort-select">
+              <option value="default">Default</option>
+              <option value="hp">Highest HP</option>
+              <option value="posture">Highest Posture</option>
+              <option value="reiatsu">Highest Reiatsu</option>
+              <option value="modeDuration">Highest Mode Duration</option>
+              <option value="specialDuration">Highest Special Duration</option>
+            </select>
+          </label>
+          <button id="share-build" class="button button-primary">Copy Share Link</button>
+          <button id="reset-build" class="button button-secondary">Reset Build</button>
+        </div>
+      </header>
+
+      <main class="layout-grid">
+        <section class="panel panel-controls">
+          <div class="panel-heading">
+            <h2>Builder</h2>
+          </div>
+          <div class="builder-toolbar">
+            <label class="field-control" for="race-select">
+              <span>Race</span>
+              <select id="race-select" class="field-select">
+                <option value="">Select race</option>
+              </select>
+            </label>
+          </div>
+          <div id="control-groups" class="control-groups"></div>
+        </section>
+
+        <section class="panel panel-sheet">
+          <div class="panel-heading">
+            <h2>Stats</h2>
+          </div>
+          <div class="stat-note">Defense cap is 25%. Effective Health uses capped defense.</div>
+          <div id="stat-grid" class="stat-grid"></div>
+          <div id="selected-summary" class="selected-summary"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="option-card-template">
+      <button class="option-card" type="button">
+        <span class="option-topline"></span>
+        <strong class="option-name"></strong>
+        <span class="option-description"></span>
+        <span class="option-bonuses"></span>
+      </button>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
