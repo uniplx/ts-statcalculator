@@ -90,15 +90,45 @@ const clans = [
 
 const accessories = [
   ["head", "nerd-o-lantern", "Nerd o' lantern", 10, 5, 10, 5, 0, 0],
+  ["head", "vampire-hunter-hat", "Vampire Hunter Hat", 15, 1, 5, 0, 0, 0],
+  ["head", "white-kirishima-horns", "White Kirishima Horns", 5, 1, 5, 3, 3, 0],
+  ["head", "laurel-crown", "Laurel Crown", 15, 0, 5, 2.5, 0, 0],
+  ["head", "spectral-crown", "Spectral Crown", 8, 2, 15, 2.5, 0, 0],
   ["face", "reinvent-diadem", "Reinvent Diadem", 10, 2, 10, 2.5, 4, 0],
+  ["head", "benevolent-scarlet", "Benevolent Scarlet", 4, 3, 0, 2, 0, 0],
+  ["face", "baraq-diadem", "Baraq Diadem", 10, 2, 5, 1, 0, 0],
+  ["face", "elf-ears", "Elf Ears", 10, 1, 0, 1.5, 0, 0],
+  ["face", "windy-elf-ears", "Windy Elf Ears", 10, 1.5, 5, 2.5, 0, 2],
+  ["face", "bejewelled-earring", "Bejewelled Earring", 7, 1, 0, 2, 2, 4],
+  ["face", "min-starrk-mask", "Min Starrk Mask", 15, 2, 0, 0, 0, 0],
   ["neck", "cursed-hood", "Cursed Hood", 10, 2.5, 10, 2, 0, 0],
+  ["neck", "consortiums-profits", "Consortiums Profits", 7, 1.5, 0, 1, 2, 2],
   ["shoulder", "mre-pin", "MRE Pin", 6, 0, 15, 0, 1, 0],
+  ["shoulder", "ivory-pauldron", "Ivory Pauldron", 0, 0, 0, 0, 1.5, 3],
   ["torso", "jailer-of-hell", "Jailer of Hell", 25, 5, 3, 2, 0, 0],
+  ["torso", "dreadful-bone-armor", "Dreadful Bone Armor", 14, 8, 15, 3.5, 0, 0],
+  ["torso", "black-sternritter-cloak", "Black Sternritter Cloak", 10, 10, 20, 0, 0, 0],
+  ["torso", "duality-haori", "Duality Haori", 25, 1, 0, 0, 3, 5],
+  ["torso", "crusaders-coat", "Crusaders Coat", 15, 5, 0, 1, 0, 0],
+  ["torso", "yhwach-almighty-cloak", "Yhwach Almighty Cloak", 13, 2, 5, 3, 0, 0],
+  ["torso", "sunset-haori", "Sunset Haori", 12, 3, 15, 3, 0, 0],
+  ["torso", "shinigami-gordeau-cloak", "Shinigami Gordeau Cloak", 7, 1, 0, 1.2, 2.5, 0],
   ["back", "princes-cape", "Prince's Cape", 12, 0, 0, 1, 0, 0],
+  ["back", "true-kalins-cape", "True Kalin's Cape", 10, 5.5, 0, 0.5, 0, 0],
+  ["back", "soulfire-halo", "Soulfire Halo", 6, 4, 8, 2, 0, 0],
+  ["back", "thunder-god-wheel", "Thunder God Wheel", 10, 2, 0, 0, 2, 4],
   ["waist", "monarchs-book", "Monarch's Book", 8, 2.5, 5, 2, 5, 5],
+  ["waist", "strongest-tail", "Strongest Tail", 5, 3.5, 3, 0, 0, 0],
+  ["waist", "sun-of-revival", "Sun of Revival", 3, 0, 0, 0, 1, 2],
   ["arm", "berserker-wraps", "Berserker Wraps", 3, 2, 0, 2, 2.5, 0],
+  ["arm", "mugetsu-wrapping", "Mugetsu Wrapping", 0, 0, 0, 0, 0, 5],
+  ["arm", "bararaq-extremity", "Bararaq Extremity", 10, 1, 10, 0, 1, 0],
   ["leg", "shinigami-raid-suit-legs", "Shinigami Raid Suit (Legs)", 10, 0, 5, 0, 0, 0],
+  ["leg", "tiger-kings-pants", "Tiger King's Pants", 1, 2.5, 5, 1, 0, 0],
   ["emblem", "shinsei", "Shinsei", 8, 2.5, 0, 2, 5, 5],
+  ["emblem", "frisky", "Frisky", 7, 0, 0, 2, 0, 0],
+  ["face", "dreadful-bone-mask", "Dreadful Bone Mask", 8, 4, 2.5, 1.5, 0, 0],
+  ["emblem", "starrk-pelt", "Starrk Pelt", 8, 0, 5, 1.5, 0, 0],
   ["torso", "mark-of-the-dead-body", "Mark of the Dead (Body)", 15, 5.5, 0, 3.5, 1, 2],
   ["arm", "siphons-ticker", "Siphon's Ticker", 10, 1, 15, 0, 1, 0],
 ].map(([slot, id, name, hp, posture, reiatsu, defense, meterGain, reducedMeterDrain]) => ({
@@ -109,27 +139,47 @@ const accessories = [
 }));
 
 const initialAccessoryState = Object.fromEntries(accessorySlots.map((slot) => [slot, ""]));
+const initialOwnedAccessoryState = Object.fromEntries(accessories.map((accessory) => [accessory.id, true]));
+const accessoryOptimizeTargets = [
+  ["effectiveHealth", "Effective Health"],
+  ["hp", "HP"],
+  ["posture", "Posture"],
+  ["reiatsu", "Reiatsu"],
+  ["defense", "Defense"],
+  ["regenPerSecond", "Regen / Sec"],
+  ["meterGain", "Meter Gain"],
+  ["reducedMeterDrain", "Reduced Meter Drain"],
+  ["modeDuration", "Mode Duration"],
+  ["specialDuration", "Special Duration"],
+];
 
 const state = {
   race: null,
   clan: null,
+  metaRace: "",
   clanSort: "default",
   accessories: { ...initialAccessoryState },
+  ownedAccessories: { ...initialOwnedAccessoryState },
+  ownershipOpenSlots: {},
+  accessoryOptimizeTarget: "effectiveHealth",
   hollowVariant: "base",
-  quincyBlutVariant: false,
-  quincyTrueBlut: false,
+  quincyDefenseMode: "blut",
   shinigamiDefenseVariant: false,
+  includeRegenInEhp: false,
 };
 
 const elements = {
   controlGroups: document.getElementById("control-groups"),
   statGrid: document.getElementById("stat-grid"),
   summary: document.getElementById("selected-summary"),
+  accessorySummary: document.getElementById("accessory-summary"),
   raceSelect: document.getElementById("race-select"),
-  clanSort: document.getElementById("clan-sort"),
+  metaRaceSelect: document.getElementById("meta-race-select"),
+  includeRegenEhp: document.getElementById("include-regen-ehp"),
   shareButton: document.getElementById("share-build"),
   resetButton: document.getElementById("reset-build"),
   optionCardTemplate: document.getElementById("option-card-template"),
+  ownershipRowTemplate: document.getElementById("ownership-row-template"),
 };
 
 function titleCase(value) {
@@ -158,9 +208,17 @@ function getAccessoryOptions(slot) {
   return accessories.filter((accessory) => accessory.slot === slot);
 }
 
-function getSelectedAccessories() {
+function isAccessoryOwned(accessoryId) {
+  return state.ownedAccessories[accessoryId] !== false;
+}
+
+function getOwnedAccessoryOptions(slot) {
+  return getAccessoryOptions(slot).filter((accessory) => isAccessoryOwned(accessory.id));
+}
+
+function getSelectedAccessories(accessoryState = state.accessories) {
   return accessorySlots
-    .map((slot) => accessories.find((accessory) => accessory.id === state.accessories[slot]))
+    .map((slot) => accessories.find((accessory) => accessory.id === accessoryState[slot]))
     .filter(Boolean);
 }
 
@@ -209,22 +267,19 @@ function getRaceBuffBonuses() {
 
   if (state.race === "hollow") {
     if (state.hollowVariant === "base" || state.hollowVariant === "ancient-vasto") bonuses.defense += 8;
-    if (state.hollowVariant === "hierro") bonuses.defense += 12;
+    if (state.hollowVariant === "hierro") bonuses.defense += 15;
     if (state.hollowVariant === "ancient-vasto") {
       bonuses.regenPerSecond += 0.7;
     }
     if (clan?.id === "louisenbairn") {
       bonuses.defense += 2.5;
-      if (state.hollowVariant === "hierro") {
-        bonuses.defense += 5;
-      }
     }
   }
 
   if (state.race === "quincy") {
-    bonuses.defense += 10;
-    if (state.quincyTrueBlut) bonuses.defense += 2;
-    if (state.quincyBlutVariant) bonuses.defense += 4;
+    if (state.quincyDefenseMode === "blut") bonuses.defense += 15;
+    if (state.quincyDefenseMode === "blut-variant") bonuses.defense += 20;
+    if (state.quincyDefenseMode === "boost-variant") bonuses.defense += 23.5;
   }
 
   if (state.race === "shinigami" && state.shinigamiDefenseVariant) {
@@ -234,9 +289,9 @@ function getRaceBuffBonuses() {
   return bonuses;
 }
 
-function calcStats() {
+function calcStats(accessoryState = state.accessories) {
   const clan = getClan();
-  const selectedAccessories = getSelectedAccessories();
+  const selectedAccessories = getSelectedAccessories(accessoryState);
   const clanBonuses = clan?.bonuses ?? {
     hp: 0,
     posture: 0,
@@ -249,6 +304,9 @@ function calcStats() {
   };
   const accessoryBonuses = sumBonuses(selectedAccessories);
   const raceBuffBonuses = getRaceBuffBonuses();
+  const nonAccessoryDefenseBonus = (clanBonuses.defense ?? 0) + (raceBuffBonuses.defense ?? 0);
+  const accessoryDefenseBonus = accessoryBonuses.defense ?? 0;
+  const accessoryDefenseUsed = Math.min(accessoryDefenseBonus, 23);
 
   const totalBonus = Object.fromEntries(
     Object.keys(baseStats).map((key) => [
@@ -259,9 +317,10 @@ function calcStats() {
 
   const hp = baseStats.hp + totalBonus.hp;
   const defense = baseStats.defense + totalBonus.defense;
-  const cappedDefense = Math.min(defense, 25);
+  const cappedDefense = baseStats.defense + accessoryDefenseUsed + nonAccessoryDefenseBonus;
   const regenPerSecond = baseStats.regenPerSecond + totalBonus.regenPerSecond;
-  const effectiveHealth = Math.round((hp + regenPerSecond * 60) / Math.max(0.01, 1 - cappedDefense / 100));
+  const regenContribution = state.includeRegenInEhp ? regenPerSecond * 60 : 0;
+  const effectiveHealth = Math.round((hp + regenContribution) / Math.max(0.01, 1 - cappedDefense / 100));
 
   return {
     hp,
@@ -280,13 +339,377 @@ function calcStats() {
     postureBonus: totalBonus.posture,
     reiatsuBonus: totalBonus.reiatsu,
     defenseBonus: totalBonus.defense,
+    accessoryDefenseBonus,
+    accessoryDefenseUsed,
+    nonAccessoryDefenseBonus,
     regenPerSecondBonus: totalBonus.regenPerSecond,
     meterGainBonus: totalBonus.meterGain,
     reducedMeterDrainBonus: totalBonus.reducedMeterDrain,
     modeDurationBonus: totalBonus.modeDuration,
     specialDurationBonus: totalBonus.specialDuration,
     specialLabel: clan?.specialLabel || specialLabelForRace(state.race),
+    regenIncludedInEhp: state.includeRegenInEhp,
   };
+}
+
+function getBuffStatesForRace(raceId) {
+  if (raceId === "hollow") {
+    return [
+      { hollowVariant: "proficiency", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
+      { hollowVariant: "base", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
+      { hollowVariant: "hierro", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
+      { hollowVariant: "ancient-vasto", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
+    ];
+  }
+
+  if (raceId === "quincy") {
+    return [
+      { hollowVariant: "base", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
+      { hollowVariant: "base", quincyDefenseMode: "blut-variant", shinigamiDefenseVariant: false },
+      { hollowVariant: "base", quincyDefenseMode: "boost-variant", shinigamiDefenseVariant: false },
+    ];
+  }
+
+  if (raceId === "shinigami") {
+    return [
+      { hollowVariant: "base", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
+      { hollowVariant: "base", quincyDefenseMode: "blut", shinigamiDefenseVariant: true },
+    ];
+  }
+
+  return [
+    { hollowVariant: "base", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
+  ];
+}
+
+function isBetterStatLine(candidate, best) {
+  if (!best) return true;
+  if (candidate.effectiveHealth !== best.effectiveHealth) return candidate.effectiveHealth > best.effectiveHealth;
+  if (candidate.hp !== best.hp) return candidate.hp > best.hp;
+  return candidate.defense > best.defense;
+}
+
+function compareAccessoryOptimizationStats(candidate, best, target) {
+  if (!best) return true;
+  if ((candidate[target] ?? 0) !== (best[target] ?? 0)) {
+    return (candidate[target] ?? 0) > (best[target] ?? 0);
+  }
+  return isBetterStatLine(candidate, best);
+}
+
+function makeEmptyAccessoryBonusTotals() {
+  return {
+    hp: 0,
+    posture: 0,
+    reiatsu: 0,
+    defense: 0,
+    regenPerSecond: 0,
+    meterGain: 0,
+    reducedMeterDrain: 0,
+    modeDuration: 0,
+    specialDuration: 0,
+  };
+}
+
+function addAccessoryBonusTotals(left, right) {
+  return {
+    hp: left.hp + (right.hp ?? 0),
+    posture: left.posture + (right.posture ?? 0),
+    reiatsu: left.reiatsu + (right.reiatsu ?? 0),
+    defense: left.defense + (right.defense ?? 0),
+    regenPerSecond: left.regenPerSecond + (right.regenPerSecond ?? 0),
+    meterGain: left.meterGain + (right.meterGain ?? 0),
+    reducedMeterDrain: left.reducedMeterDrain + (right.reducedMeterDrain ?? 0),
+    modeDuration: left.modeDuration + (right.modeDuration ?? 0),
+    specialDuration: left.specialDuration + (right.specialDuration ?? 0),
+  };
+}
+
+function buildStatsFromAccessoryBonuses(baseBuildStats, accessoryBonuses) {
+  const accessoryDefenseBonus = accessoryBonuses.defense ?? 0;
+  const accessoryDefenseUsed = Math.min(accessoryDefenseBonus, 25);
+  const cappedDefense = baseBuildStats.nonAccessoryDefenseBonus + accessoryDefenseUsed;
+  const regenPerSecond = baseBuildStats.regenPerSecond + (accessoryBonuses.regenPerSecond ?? 0);
+  const regenContribution = state.includeRegenInEhp ? regenPerSecond * 60 : 0;
+  const hp = baseBuildStats.hp + (accessoryBonuses.hp ?? 0);
+  const effectiveHealth = Math.round((hp + regenContribution) / Math.max(0.01, 1 - cappedDefense / 100));
+
+  return {
+    hp,
+    effectiveHealth,
+    posture: baseBuildStats.posture + (accessoryBonuses.posture ?? 0),
+    reiatsu: baseBuildStats.reiatsu + (accessoryBonuses.reiatsu ?? 0),
+    defense: baseBuildStats.defense + accessoryDefenseBonus,
+    cappedDefense,
+    regenPerSecond,
+    meterGain: baseBuildStats.meterGain + (accessoryBonuses.meterGain ?? 0),
+    reducedMeterDrain: baseBuildStats.reducedMeterDrain + (accessoryBonuses.reducedMeterDrain ?? 0),
+    modeDuration: baseBuildStats.modeDuration + (accessoryBonuses.modeDuration ?? 0),
+    specialDuration: baseBuildStats.specialDuration + (accessoryBonuses.specialDuration ?? 0),
+    hpBonus: baseBuildStats.hpBonus + (accessoryBonuses.hp ?? 0),
+    effectiveHealthBonus: effectiveHealth - baseStats.effectiveHealth,
+    postureBonus: baseBuildStats.postureBonus + (accessoryBonuses.posture ?? 0),
+    reiatsuBonus: baseBuildStats.reiatsuBonus + (accessoryBonuses.reiatsu ?? 0),
+    defenseBonus: baseBuildStats.nonAccessoryDefenseBonus + accessoryDefenseBonus,
+    accessoryDefenseBonus,
+    accessoryDefenseUsed,
+    nonAccessoryDefenseBonus: baseBuildStats.nonAccessoryDefenseBonus,
+    regenPerSecondBonus: baseBuildStats.regenPerSecondBonus + (accessoryBonuses.regenPerSecond ?? 0),
+    meterGainBonus: baseBuildStats.meterGainBonus + (accessoryBonuses.meterGain ?? 0),
+    reducedMeterDrainBonus: baseBuildStats.reducedMeterDrainBonus + (accessoryBonuses.reducedMeterDrain ?? 0),
+    modeDurationBonus: baseBuildStats.modeDurationBonus + (accessoryBonuses.modeDuration ?? 0),
+    specialDurationBonus: baseBuildStats.specialDurationBonus + (accessoryBonuses.specialDuration ?? 0),
+    specialLabel: baseBuildStats.specialLabel,
+    regenIncludedInEhp: state.includeRegenInEhp,
+  };
+}
+
+function getOptimizerScoreTuple(accessory, target) {
+  const bonuses = accessory?.bonuses ?? makeEmptyAccessoryBonusTotals();
+  return [
+    bonuses[target] ?? 0,
+    bonuses.hp ?? 0,
+    bonuses.defense ?? 0,
+    bonuses.reiatsu ?? 0,
+    bonuses.posture ?? 0,
+    bonuses.meterGain ?? 0,
+    bonuses.reducedMeterDrain ?? 0,
+  ];
+}
+
+function isTupleBetter(left, right) {
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) return left[index] > right[index];
+  }
+  return false;
+}
+
+function getBestAccessoryStateForAdditiveTarget(target, ownedOptionsBySlot) {
+  const bestState = { ...initialAccessoryState };
+
+  accessorySlots.forEach((slot) => {
+    const options = [null, ...ownedOptionsBySlot.get(slot)];
+    let bestOption = null;
+    let bestTuple = getOptimizerScoreTuple(null, target);
+
+    options.forEach((option) => {
+      const tuple = getOptimizerScoreTuple(option, target);
+      if (isTupleBetter(tuple, bestTuple)) {
+        bestTuple = tuple;
+        bestOption = option;
+      }
+    });
+
+    bestState[slot] = bestOption?.id ?? "";
+  });
+
+  return bestState;
+}
+
+function getBestAccessoryStateForEffectiveHealth(baseBuildStats, ownedOptionsBySlot) {
+  let frontier = new Map([[0, { bonuses: makeEmptyAccessoryBonusTotals(), state: { ...initialAccessoryState } }]]);
+
+  accessorySlots.forEach((slot) => {
+    const nextFrontier = new Map();
+    const options = [null, ...ownedOptionsBySlot.get(slot)];
+
+    options.forEach((option) => {
+      frontier.forEach((entry) => {
+        const bonuses = option ? addAccessoryBonusTotals(entry.bonuses, option.bonuses) : { ...entry.bonuses };
+        const defenseKey = Math.round(Math.min(bonuses.defense, 25) * 10);
+        const candidateState = { ...entry.state, [slot]: option?.id ?? "" };
+        const candidateStats = buildStatsFromAccessoryBonuses(baseBuildStats, bonuses);
+        const existing = nextFrontier.get(defenseKey);
+
+        if (!existing) {
+          nextFrontier.set(defenseKey, { bonuses, state: candidateState, stats: candidateStats });
+          return;
+        }
+
+        if (compareAccessoryOptimizationStats(candidateStats, existing.stats, "effectiveHealth")) {
+          nextFrontier.set(defenseKey, { bonuses, state: candidateState, stats: candidateStats });
+        }
+      });
+    });
+
+    frontier = nextFrontier;
+  });
+
+  let best = null;
+  frontier.forEach((entry) => {
+    if (!best || compareAccessoryOptimizationStats(entry.stats, best.stats, "effectiveHealth")) {
+      best = entry;
+    }
+  });
+
+  return best?.state ?? { ...initialAccessoryState };
+}
+
+function getBestAccessoryStateForCurrentBuild(target = state.accessoryOptimizeTarget) {
+  const baseBuildStats = calcStats(initialAccessoryState);
+  const ownedOptionsBySlot = new Map(accessorySlots.map((slot) => [slot, getOwnedAccessoryOptions(slot)]));
+
+  if (target === "effectiveHealth") {
+    return getBestAccessoryStateForEffectiveHealth(baseBuildStats, ownedOptionsBySlot);
+  }
+
+  return getBestAccessoryStateForAdditiveTarget(target, ownedOptionsBySlot);
+}
+
+function equipBestAccessories() {
+  state.accessories = getBestAccessoryStateForCurrentBuild(state.accessoryOptimizeTarget);
+  syncUrl();
+  rerender();
+}
+
+function getBestMetaClanBuildForRace(raceId) {
+  const clanPool = clans.filter((clan) => clan.race === raceId);
+  let bestResult = null;
+
+  clanPool.forEach((clan) => {
+    state.race = raceId;
+    state.clan = clan.id;
+    state.accessories = { ...initialAccessoryState };
+
+    const bestBuffState = getBestBuffStateForCurrentRaceAndClan(raceId);
+    state.hollowVariant = bestBuffState.hollowVariant;
+    state.quincyDefenseMode = bestBuffState.quincyDefenseMode;
+    state.shinigamiDefenseVariant = bestBuffState.shinigamiDefenseVariant;
+
+    const bestAccessories = getBestAccessoryStateForCurrentBuild("effectiveHealth");
+    const stats = calcStats(bestAccessories);
+    const candidate = {
+      clan,
+      buffState: bestBuffState,
+      accessories: bestAccessories,
+      stats,
+    };
+
+    if (!bestResult || compareAccessoryOptimizationStats(candidate.stats, bestResult.stats, "effectiveHealth")) {
+      bestResult = candidate;
+    }
+  });
+
+  return bestResult;
+}
+
+function getBestBuffStateForCurrentRaceAndClan(raceId) {
+  const buffCandidates = getBuffStatesForRace(raceId);
+  let bestBuffState = buffCandidates[0];
+  let bestStats = null;
+
+  buffCandidates.forEach((buffState) => {
+    state.hollowVariant = buffState.hollowVariant;
+    state.quincyDefenseMode = buffState.quincyDefenseMode;
+    state.shinigamiDefenseVariant = buffState.shinigamiDefenseVariant;
+    const candidateStats = calcStats(initialAccessoryState);
+    if (isBetterStatLine(candidateStats, bestStats)) {
+      bestStats = candidateStats;
+      bestBuffState = buffState;
+    }
+  });
+
+  return bestBuffState;
+}
+
+function applyBestMetaBuild(raceId) {
+  const previousState = {
+    race: state.race,
+    clan: state.clan,
+    accessories: { ...state.accessories },
+    hollowVariant: state.hollowVariant,
+    quincyDefenseMode: state.quincyDefenseMode,
+    shinigamiDefenseVariant: state.shinigamiDefenseVariant,
+  };
+  const bestBuild = getBestMetaClanBuildForRace(raceId);
+  if (!bestBuild) {
+    state.race = previousState.race;
+    state.clan = previousState.clan;
+    state.accessories = previousState.accessories;
+    state.hollowVariant = previousState.hollowVariant;
+    state.quincyDefenseMode = previousState.quincyDefenseMode;
+    state.shinigamiDefenseVariant = previousState.shinigamiDefenseVariant;
+    return;
+  }
+
+  state.metaRace = raceId;
+  state.race = raceId;
+  state.clan = bestBuild.clan.id;
+  state.hollowVariant = bestBuild.buffState.hollowVariant;
+  state.quincyDefenseMode = bestBuild.buffState.quincyDefenseMode;
+  state.shinigamiDefenseVariant = bestBuild.buffState.shinigamiDefenseVariant;
+  state.accessories = { ...bestBuild.accessories };
+  syncUrl();
+  rerender();
+}
+
+function getBestFullBuildForTarget(target) {
+  const previousState = {
+    race: state.race,
+    clan: state.clan,
+    accessories: { ...state.accessories },
+    hollowVariant: state.hollowVariant,
+    quincyDefenseMode: state.quincyDefenseMode,
+    shinigamiDefenseVariant: state.shinigamiDefenseVariant,
+  };
+  let bestResult = null;
+
+  races.forEach((race) => {
+    const clanPool = clans.filter((clan) => clan.race === race.id);
+
+    clanPool.forEach((clan) => {
+      state.race = race.id;
+      state.clan = clan.id;
+      state.accessories = { ...initialAccessoryState };
+
+      getBuffStatesForRace(race.id).forEach((buffState) => {
+        state.hollowVariant = buffState.hollowVariant;
+        state.quincyDefenseMode = buffState.quincyDefenseMode;
+        state.shinigamiDefenseVariant = buffState.shinigamiDefenseVariant;
+
+        const bestAccessories = getBestAccessoryStateForCurrentBuild(target);
+        const stats = calcStats(bestAccessories);
+        const candidate = {
+          race: race.id,
+          clan: clan.id,
+          accessories: bestAccessories,
+          hollowVariant: buffState.hollowVariant,
+          quincyDefenseMode: buffState.quincyDefenseMode,
+          shinigamiDefenseVariant: buffState.shinigamiDefenseVariant,
+          stats,
+        };
+
+        if (!bestResult || compareAccessoryOptimizationStats(candidate.stats, bestResult.stats, target)) {
+          bestResult = candidate;
+        }
+      });
+    });
+  });
+
+  state.race = previousState.race;
+  state.clan = previousState.clan;
+  state.accessories = previousState.accessories;
+  state.hollowVariant = previousState.hollowVariant;
+  state.quincyDefenseMode = previousState.quincyDefenseMode;
+  state.shinigamiDefenseVariant = previousState.shinigamiDefenseVariant;
+
+  return bestResult;
+}
+
+function applyBestBuildForTarget(target) {
+  const bestBuild = getBestFullBuildForTarget(target);
+  if (!bestBuild) return;
+
+  state.metaRace = "";
+  state.accessoryOptimizeTarget = target;
+  state.race = bestBuild.race;
+  state.clan = bestBuild.clan;
+  state.accessories = { ...bestBuild.accessories };
+  state.hollowVariant = bestBuild.hollowVariant;
+  state.quincyDefenseMode = bestBuild.quincyDefenseMode;
+  state.shinigamiDefenseVariant = bestBuild.shinigamiDefenseVariant;
+  syncUrl();
+  rerender();
 }
 
 function renderControls() {
@@ -314,10 +737,44 @@ function renderGroup(title, hint, options, key, locked = false) {
 
   const header = document.createElement("div");
   header.className = "control-group-header";
-  header.innerHTML = `<h3>${title}</h3><span>${hint}</span>`;
+  const titleRow = document.createElement("div");
+  titleRow.className = "control-group-title";
+  titleRow.innerHTML = `<h3>${title}</h3>`;
+
+  if (key === "clan") {
+    const sortControl = document.createElement("label");
+    sortControl.className = "inline-control";
+    sortControl.innerHTML = `
+      <span>Sort</span>
+      <select id="clan-sort-inline" class="sort-select">
+        <option value="default">Default</option>
+        <option value="hp">Highest HP</option>
+        <option value="posture">Highest Posture</option>
+        <option value="reiatsu">Highest Reiatsu</option>
+        <option value="modeDuration">Highest Mode Duration</option>
+        <option value="specialDuration">Highest Special Duration</option>
+      </select>
+    `;
+    sortControl.querySelector("select").value = state.clanSort;
+    sortControl.querySelector("select").addEventListener("change", (event) => {
+      state.metaRace = "";
+      state.clanSort = event.target.value;
+      syncUrl();
+      rerender();
+    });
+    titleRow.appendChild(sortControl);
+  }
+
+  header.append(titleRow);
+  const hintText = document.createElement("span");
+  hintText.textContent = hint;
+  header.appendChild(hintText);
 
   const grid = document.createElement("div");
   grid.className = "option-grid";
+  if (key === "clan" && state.clan) {
+    grid.classList.add("option-grid-compact");
+  }
 
   if (locked) {
     const empty = document.createElement("article");
@@ -326,7 +783,12 @@ function renderGroup(title, hint, options, key, locked = false) {
     grid.appendChild(empty);
   }
 
-  options.forEach((option) => {
+  const visibleOptions =
+    key === "clan" && state.clan
+      ? options.filter((option) => option.id === state.clan)
+      : options;
+
+  visibleOptions.forEach((option) => {
     const card = elements.optionCardTemplate.content.firstElementChild.cloneNode(true);
     card.querySelector(".option-topline").textContent = `${option.rarity} | ${option.dropRate}`;
     card.querySelector(".option-name").textContent = option.name;
@@ -347,7 +809,41 @@ function renderAccessoryControls() {
 
   const header = document.createElement("div");
   header.className = "control-group-header";
-  header.innerHTML = "<h3>Accessories</h3><span>One per slot</span>";
+  const titleRow = document.createElement("div");
+  titleRow.className = "control-group-title";
+  titleRow.innerHTML = "<h3>Accessories</h3>";
+
+  const actions = document.createElement("div");
+  actions.className = "accessory-actions";
+
+  const optimizerSelect = document.createElement("select");
+  optimizerSelect.className = "sort-select optimizer-select";
+  accessoryOptimizeTargets.forEach(([value, label]) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = `Best ${label}`;
+    if (state.accessoryOptimizeTarget === value) option.selected = true;
+    optimizerSelect.appendChild(option);
+  });
+  optimizerSelect.addEventListener("change", (event) => {
+    state.accessoryOptimizeTarget = event.target.value;
+    syncUrl();
+    rerender();
+  });
+
+  const equipBestButton = document.createElement("button");
+  equipBestButton.type = "button";
+  equipBestButton.className = "button button-secondary button-compact";
+  equipBestButton.textContent = "Equip Best";
+  equipBestButton.addEventListener("click", equipBestAccessories);
+
+  actions.append(optimizerSelect, equipBestButton);
+  titleRow.appendChild(actions);
+
+  header.appendChild(titleRow);
+  const hintText = document.createElement("span");
+  hintText.textContent = "One per slot. Equip Best only uses accessories marked as owned.";
+  header.appendChild(hintText);
 
   const grid = document.createElement("div");
   grid.className = "accessory-grid";
@@ -367,12 +863,13 @@ function renderAccessoryControls() {
     getAccessoryOptions(slot).forEach((accessory) => {
       const option = document.createElement("option");
       option.value = accessory.id;
-      option.textContent = accessory.name;
+      option.textContent = `${accessory.name}${isAccessoryOwned(accessory.id) ? "" : " (Not Owned)"}`;
       if (state.accessories[slot] === accessory.id) option.selected = true;
       select.appendChild(option);
     });
 
     select.addEventListener("change", (event) => {
+      state.metaRace = "";
       state.accessories[slot] = event.target.value;
       syncUrl();
       rerender();
@@ -382,7 +879,46 @@ function renderAccessoryControls() {
     grid.appendChild(field);
   });
 
-  section.append(header, grid);
+  const ownershipGroup = document.createElement("div");
+  ownershipGroup.className = "ownership-groups";
+
+  accessorySlots.forEach((slot) => {
+    const details = document.createElement("details");
+    details.className = "ownership-slot";
+    details.open = state.ownershipOpenSlots[slot] ?? false;
+    details.addEventListener("toggle", () => {
+      state.ownershipOpenSlots[slot] = details.open;
+    });
+
+    const ownedCount = getOwnedAccessoryOptions(slot).length;
+    const totalCount = getAccessoryOptions(slot).length;
+    details.innerHTML = `<summary><strong>Owned ${titleCase(slot)}</strong><span>${ownedCount}/${totalCount} owned</span></summary>`;
+
+    const list = document.createElement("div");
+    list.className = "ownership-list";
+
+    getAccessoryOptions(slot).forEach((accessory) => {
+      const row = elements.ownershipRowTemplate.content.firstElementChild.cloneNode(true);
+      const checkbox = row.querySelector("input");
+      const name = row.querySelector(".ownership-name");
+      checkbox.checked = isAccessoryOwned(accessory.id);
+      checkbox.addEventListener("change", (event) => {
+        state.ownedAccessories[accessory.id] = event.target.checked;
+        if (!event.target.checked && state.accessories[slot] === accessory.id) {
+          state.accessories[slot] = "";
+        }
+        syncUrl();
+        rerender();
+      });
+      name.textContent = accessory.name;
+      list.appendChild(row);
+    });
+
+    details.appendChild(list);
+    ownershipGroup.appendChild(details);
+  });
+
+  section.append(header, grid, ownershipGroup);
   elements.controlGroups.appendChild(section);
 }
 
@@ -404,31 +940,32 @@ function renderRaceBuffControls() {
     field.className = "field-control";
     field.innerHTML = `<span>Arrancar Variant</span>
       <select class="field-select" id="hollow-variant-select">
-        <option value="base">None</option>
-        <option value="proficiency">Proficiency</option>
-        <option value="hierro">Hierro Variant</option>
-        <option value="ancient-vasto">Ancient Vasto</option>
+        <option value="proficiency">Proficiency (No Hierro)</option>
+        <option value="base">Base Hierro (8% Defense)</option>
+        <option value="hierro">Hierro Variant (+7%, 15% Total)</option>
+        <option value="ancient-vasto">Ancient Vasto (8% Defense, 0.7 Regen)</option>
       </select>`;
     field.querySelector("select").value = state.hollowVariant;
     grid.appendChild(field);
   }
 
   if (state.race === "quincy") {
-    const blutVariant = document.createElement("label");
-    blutVariant.className = "toggle-control";
-    blutVariant.innerHTML = `<input type="checkbox" id="quincy-blut-variant" ${state.quincyBlutVariant ? "checked" : ""} /><span>Blut Variant (+4% Defense)</span>`;
-    grid.appendChild(blutVariant);
-
-    const trueBlut = document.createElement("label");
-    trueBlut.className = "toggle-control";
-    trueBlut.innerHTML = `<input type="checkbox" id="quincy-true-blut" ${state.quincyTrueBlut ? "checked" : ""} /><span>True Blut Essence (+2% Defense)</span>`;
-    grid.appendChild(trueBlut);
+    const field = document.createElement("label");
+    field.className = "field-control";
+    field.innerHTML = `<span>Quincy Defense Mode</span>
+      <select class="field-select" id="quincy-defense-mode-select">
+        <option value="blut">Blut (15% Defense)</option>
+        <option value="blut-variant">Blut Variant (20% Total)</option>
+        <option value="boost-variant">Boost Variant (23.5% Total)</option>
+      </select>`;
+    field.querySelector("select").value = state.quincyDefenseMode;
+    grid.appendChild(field);
   }
 
   if (state.race === "shinigami") {
     const defenseVariant = document.createElement("label");
     defenseVariant.className = "toggle-control";
-    defenseVariant.innerHTML = `<input type="checkbox" id="shinigami-defense-variant" ${state.shinigamiDefenseVariant ? "checked" : ""} /><span>Defense Variant (+5% Defense)</span>`;
+    defenseVariant.innerHTML = `<input type="checkbox" id="shinigami-defense-variant" ${state.shinigamiDefenseVariant ? "checked" : ""} /><span>Vizard Defense Variant (+5% Defense)</span>`;
     grid.appendChild(defenseVariant);
   }
 
@@ -451,6 +988,7 @@ function formatBonuses(bonuses, specialLabel = "Special Duration") {
 }
 
 function selectOption(key, id) {
+  state.metaRace = "";
   if (key === "race") {
     state.race = state.race === id ? null : id;
     if (!getClanPool().some((clan) => clan.id === state.clan)) state.clan = null;
@@ -461,26 +999,6 @@ function selectOption(key, id) {
   rerender();
 }
 
-function getTierLabel(key, value) {
-  const thresholds = {
-    hp: [5, 15, 25],
-    effectiveHealth: [15, 40, 80],
-    posture: [2, 5, 10],
-    reiatsu: [5, 10, 20],
-    defense: [1, 2, 4],
-    regenPerSecond: [0.1, 0.4, 0.7],
-    meterGain: [1, 3, 5],
-    reducedMeterDrain: [1, 3, 5],
-    modeDuration: [3, 5, 10],
-    specialDuration: [3, 5, 10],
-  };
-  const [low, mid, high] = thresholds[key];
-  if (value >= high) return "Top";
-  if (value >= mid) return "Strong";
-  if (value >= low) return "Useful";
-  return "Base";
-}
-
 function renderStats() {
   const stats = calcStats();
   elements.statGrid.innerHTML = "";
@@ -489,17 +1007,25 @@ function renderStats() {
     const label = definition.key === "specialDuration" ? stats.specialLabel : definition.label;
     const value = stats[definition.key];
     const bonus = stats[`${definition.key}Bonus`];
+    if (value <= 0) return;
     const baseValue = baseStats[definition.key];
     const suffix = definition.suffix ?? "";
     const card = document.createElement("article");
     card.className = "stat-card";
     const meta =
       definition.key === "effectiveHealth"
-        ? `Uses ${stats.cappedDefense}% defense cap | Bonus +${bonus}${suffix}`
+        ? `Accessory defense used: ${stats.accessoryDefenseUsed}% of ${stats.accessoryDefenseBonus}% | Total defense used: ${stats.cappedDefense}%${stats.regenIncludedInEhp ? " | Regen included" : " | Regen ignored"} | Bonus +${bonus}${suffix}`
         : definition.key === "defense"
-          ? `Base ${baseValue}${suffix} | Bonus +${bonus}${suffix} | EHP uses ${stats.cappedDefense}%`
+          ? `Accessory defense: ${stats.accessoryDefenseBonus}% (${stats.accessoryDefenseUsed}% used) | Other defense: ${stats.nonAccessoryDefenseBonus}% | EHP uses ${stats.cappedDefense}%`
           : `Base ${baseValue}${suffix} | Bonus +${bonus}${suffix}`;
-    card.innerHTML = `<span class="stat-label">${label}</span><div class="stat-value-row"><span class="stat-value">${value}${suffix}</span><span class="stat-tier">${getTierLabel(definition.key, bonus)}</span></div><div class="stat-meta">${meta}</div>`;
+    card.innerHTML = `<span class="stat-label">${label}</span><div class="stat-value-row"><span class="stat-value">${value}${suffix}</span></div><div class="stat-meta">${meta}</div>`;
+    const valueRow = card.querySelector(".stat-value-row");
+    const optimizeButton = document.createElement("button");
+    optimizeButton.type = "button";
+    optimizeButton.className = "button button-secondary button-compact stat-action";
+    optimizeButton.textContent = "Equip Best";
+    optimizeButton.addEventListener("click", () => applyBestBuildForTarget(definition.key));
+    valueRow.appendChild(optimizeButton);
     elements.statGrid.appendChild(card);
   });
 }
@@ -509,7 +1035,10 @@ function renderSummary() {
   const clan = getClan();
   const selectedAccessories = getSelectedAccessories();
   const raceBuffs = getRaceBuffBonuses();
+  const ownedCount = Object.values(state.ownedAccessories).filter(Boolean).length;
+  const optimizeLabel = accessoryOptimizeTargets.find(([value]) => value === state.accessoryOptimizeTarget)?.[1] ?? "Effective Health";
   elements.summary.innerHTML = "";
+  elements.accessorySummary.innerHTML = "";
 
   addSummaryCard("Race", race ? race.name : "None");
   addSummaryCard("Clan", clan ? `${clan.name} (${clan.rarity} | ${clan.dropRate})` : "None");
@@ -523,12 +1052,22 @@ function renderSummary() {
     addSummaryCard("Race Buffs", formatBonuses(raceBuffs, specialLabelForRace(state.race)));
   }
 
+  addSummaryCard("Accessory Optimizer", `Targeting ${optimizeLabel}. Owned pool: ${ownedCount}/${accessories.length} accessories.`);
+
+  if (selectedAccessories.length > 0) {
+    const stats = calcStats();
+    addSummaryCard(
+      "Defense Rule",
+      `Accessories give ${stats.accessoryDefenseBonus}% defense, but only ${stats.accessoryDefenseUsed}% counts toward EHP. Race and variant defense add on top for ${stats.cappedDefense}% total EHP defense.`
+    );
+  }
+
   if (selectedAccessories.length > 0) {
     selectedAccessories.forEach((accessory) => {
-      addSummaryCard(`${titleCase(accessory.slot)} Accessory`, `${accessory.name} | ${formatBonuses(accessory.bonuses)}`);
+      addAccessorySummaryCard(`${titleCase(accessory.slot)}`, `${accessory.name} | ${formatBonuses(accessory.bonuses)}`);
     });
   } else {
-    addSummaryCard("Accessories", "None");
+    addAccessorySummaryCard("Accessories", "None");
   }
 }
 
@@ -539,15 +1078,26 @@ function addSummaryCard(title, text) {
   elements.summary.appendChild(card);
 }
 
+function addAccessorySummaryCard(title, text) {
+  const card = document.createElement("article");
+  card.className = "selected-item";
+  card.innerHTML = `<strong>${title}</strong><span>${text}</span>`;
+  elements.accessorySummary.appendChild(card);
+}
+
 function syncUrl() {
   const params = new URLSearchParams();
+  if (state.metaRace) params.set("meta", state.metaRace);
   if (state.race) params.set("race", state.race);
   if (state.clan) params.set("clan", state.clan);
+  if (state.accessoryOptimizeTarget !== "effectiveHealth") params.set("optimize", state.accessoryOptimizeTarget);
+  if (state.includeRegenInEhp) params.set("regenEhp", "1");
   if (state.clanSort !== "default") params.set("sort", state.clanSort);
   if (state.hollowVariant !== "base") params.set("hollowVariant", state.hollowVariant);
-  if (state.quincyBlutVariant) params.set("quincyBlutVariant", "1");
-  if (state.quincyTrueBlut) params.set("quincyTrueBlut", "1");
+  if (state.quincyDefenseMode !== "blut") params.set("quincyDefenseMode", state.quincyDefenseMode);
   if (state.shinigamiDefenseVariant) params.set("shinigamiDefenseVariant", "1");
+  const excluded = accessories.filter((accessory) => !isAccessoryOwned(accessory.id)).map((accessory) => accessory.id);
+  if (excluded.length > 0) params.set("exclude", excluded.join(","));
 
   accessorySlots.forEach((slot) => {
     if (state.accessories[slot]) {
@@ -560,6 +1110,15 @@ function syncUrl() {
 
 function loadStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
+  const metaRace = params.get("meta");
+  if (["shinigami", "hollow", "quincy", "fullbringer"].includes(metaRace)) {
+    state.metaRace = metaRace;
+  }
+  state.includeRegenInEhp = params.get("regenEhp") === "1";
+  const optimizeTarget = params.get("optimize");
+  if (accessoryOptimizeTargets.some(([value]) => value === optimizeTarget)) {
+    state.accessoryOptimizeTarget = optimizeTarget;
+  }
   const race = params.get("race");
   if (races.some((entry) => entry.id === race)) state.race = race;
 
@@ -575,13 +1134,19 @@ function loadStateFromUrl() {
   if (["proficiency", "base", "hierro", "ancient-vasto"].includes(hollowVariant)) {
     state.hollowVariant = hollowVariant;
   }
-  state.quincyBlutVariant = params.get("quincyBlutVariant") === "1";
-  state.quincyTrueBlut = params.get("quincyTrueBlut") === "1";
+  const quincyDefenseMode = params.get("quincyDefenseMode");
+  if (["blut", "blut-variant", "boost-variant"].includes(quincyDefenseMode)) {
+    state.quincyDefenseMode = quincyDefenseMode;
+  }
   state.shinigamiDefenseVariant = params.get("shinigamiDefenseVariant") === "1";
+  const excluded = new Set((params.get("exclude") ?? "").split(",").filter(Boolean));
+  accessories.forEach((accessory) => {
+    state.ownedAccessories[accessory.id] = !excluded.has(accessory.id);
+  });
 
   accessorySlots.forEach((slot) => {
     const value = params.get(slot);
-    if (getAccessoryOptions(slot).some((accessory) => accessory.id === value)) {
+    if (getAccessoryOptions(slot).some((accessory) => accessory.id === value) && isAccessoryOwned(value)) {
       state.accessories[slot] = value;
     }
   });
@@ -590,13 +1155,15 @@ function loadStateFromUrl() {
 function resetBuild() {
   state.race = null;
   state.clan = null;
+  state.metaRace = "";
   state.clanSort = "default";
   state.accessories = { ...initialAccessoryState };
+  state.ownedAccessories = { ...initialOwnedAccessoryState };
+  state.accessoryOptimizeTarget = "effectiveHealth";
   state.hollowVariant = "base";
-  state.quincyBlutVariant = false;
-  state.quincyTrueBlut = false;
+  state.quincyDefenseMode = "blut";
   state.shinigamiDefenseVariant = false;
-  elements.clanSort.value = "default";
+  state.includeRegenInEhp = false;
   syncUrl();
   rerender();
 }
@@ -616,7 +1183,8 @@ async function copyShareLink() {
 
 function rerender() {
   elements.raceSelect.value = state.race ?? "";
-  elements.clanSort.value = state.clanSort;
+  elements.metaRaceSelect.value = state.metaRace ?? "";
+  elements.includeRegenEhp.checked = state.includeRegenInEhp;
   renderControls();
   renderStats();
   renderSummary();
@@ -625,39 +1193,46 @@ function rerender() {
 elements.resetButton.addEventListener("click", resetBuild);
 elements.shareButton.addEventListener("click", copyShareLink);
 elements.raceSelect.addEventListener("change", (event) => {
+  state.metaRace = "";
   const nextRace = event.target.value || null;
   state.race = nextRace;
   if (!getClanPool().some((clan) => clan.id === state.clan)) state.clan = null;
   if (state.race !== "hollow") state.hollowVariant = "base";
-  if (state.race !== "quincy") {
-    state.quincyBlutVariant = false;
-    state.quincyTrueBlut = false;
-  }
+  if (state.race !== "quincy") state.quincyDefenseMode = "blut";
   if (state.race !== "shinigami") state.shinigamiDefenseVariant = false;
   syncUrl();
   rerender();
 });
-elements.clanSort.addEventListener("change", (event) => {
-  state.clanSort = event.target.value;
+elements.metaRaceSelect.addEventListener("change", (event) => {
+  const raceId = event.target.value;
+  if (!raceId) {
+    state.metaRace = "";
+    syncUrl();
+    rerender();
+    return;
+  }
+  applyBestMetaBuild(raceId);
+});
+elements.includeRegenEhp.addEventListener("change", (event) => {
+  state.includeRegenInEhp = event.target.checked;
   syncUrl();
   rerender();
 });
-
 document.addEventListener("change", (event) => {
   if (event.target.id === "hollow-variant-select") {
+    state.metaRace = "";
     state.hollowVariant = event.target.value;
   }
-  if (event.target.id === "quincy-blut-variant") {
-    state.quincyBlutVariant = event.target.checked;
-  }
-  if (event.target.id === "quincy-true-blut") {
-    state.quincyTrueBlut = event.target.checked;
+  if (event.target.id === "quincy-defense-mode-select") {
+    state.metaRace = "";
+    state.quincyDefenseMode = event.target.value;
   }
   if (event.target.id === "shinigami-defense-variant") {
+    state.metaRace = "";
     state.shinigamiDefenseVariant = event.target.checked;
   }
   if (
-    ["hollow-variant-select", "quincy-blut-variant", "quincy-true-blut", "shinigami-defense-variant"].includes(
+    ["hollow-variant-select", "quincy-defense-mode-select", "shinigami-defense-variant"].includes(
       event.target.id
     )
   ) {
