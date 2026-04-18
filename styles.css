@@ -121,6 +121,77 @@ h1 {
   gap: 12px;
 }
 
+.accessory-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.optimizer-select {
+  min-width: 200px;
+}
+
+.ownership-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ownership-slot {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.ownership-slot summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.ownership-slot summary::-webkit-details-marker {
+  display: none;
+}
+
+.ownership-slot summary span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.ownership-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+
+.ownership-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.ownership-option input {
+  accent-color: var(--accent);
+}
+
+.ownership-name {
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
 .toggle-control {
   display: flex;
   align-items: center;
@@ -135,6 +206,10 @@ h1 {
 
 .toggle-control input {
   accent-color: var(--accent);
+}
+
+.stat-toggle {
+  margin-bottom: 12px;
 }
 
 .button {
@@ -163,9 +238,21 @@ h1 {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.button-compact {
+  padding: 9px 12px;
+  border-radius: 14px;
+}
+
+.stat-action {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
 .layout-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.95fr);
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.82fr) minmax(280px, 0.76fr);
   gap: 16px;
   align-items: start;
 }
@@ -198,8 +285,7 @@ h1 {
 
 .control-group-header {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  flex-direction: column;
   gap: 10px;
 }
 
@@ -208,15 +294,39 @@ h1 {
   font-size: 1rem;
 }
 
+.control-group-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
 .control-group-header span {
   font-size: 0.84rem;
   color: var(--muted);
+}
+
+.inline-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.inline-control .sort-select {
+  min-width: 170px;
+  padding: 9px 12px;
 }
 
 .option-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 12px;
+}
+
+.option-grid-compact {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .option-card {
@@ -316,14 +426,6 @@ h1 {
   font-weight: 700;
 }
 
-.stat-tier {
-  padding: 5px 9px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  color: var(--bg);
-  background: var(--accent);
-}
-
 .selected-summary {
   display: flex;
   flex-direction: column;
@@ -349,7 +451,8 @@ h1 {
   line-height: 1.45;
 }
 
-.panel-sheet {
+.panel-sheet,
+.panel-accessories {
   position: sticky;
   top: 20px;
 }
@@ -369,7 +472,8 @@ h1 {
     align-items: flex-start;
   }
 
-  .panel-sheet {
+  .panel-sheet,
+  .panel-accessories {
     position: static;
   }
 }
@@ -388,6 +492,20 @@ h1 {
 
   .option-grid,
   .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .accessory-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .optimizer-select,
+  .ownership-list {
+    width: 100%;
+  }
+
+  .ownership-list {
     grid-template-columns: 1fr;
   }
 }
