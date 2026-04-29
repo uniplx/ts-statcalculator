@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Type Soul Stat Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <h1>Type Soul Stat Calculator</h1>
+        </div>
+        <div class="hero-actions">
+          <button id="share-build" class="button button-primary">Copy Share Link</button>
+          <button id="reset-build" class="button button-secondary">Reset</button>
+        </div>
+      </header>
+
+      <main class="layout-grid">
+        <section class="panel panel-controls">
+          <div class="panel-heading">
+            <div class="panel-heading-row">
+              <h2>Builder</h2>
+              <label class="inline-control" for="meta-race-select">
+                <span>Meta</span>
+                <select id="meta-race-select" class="sort-select">
+                  <option value="">None</option>
+                  <option value="shinigami">Shinigami</option>
+                  <option value="hollow">Hollow</option>
+                  <option value="quincy">Quincy</option>
+                  <option value="fullbringer">Fullbringer</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div class="builder-toolbar">
+            <label class="field-control" for="race-select">
+              <span>Race</span>
+              <select id="race-select" class="field-select">
+                <option value="">Select race</option>
+              </select>
+            </label>
+          </div>
+          <div id="control-groups" class="control-groups"></div>
+        </section>
+
+        <section class="panel panel-sheet">
+          <div class="panel-heading">
+            <h2>Stats</h2>
+          </div>
+          <label class="toggle-control stat-toggle">
+            <input id="include-regen-ehp" type="checkbox" />
+            <span>Include Regen in Effective Health (60s)</span>
+          </label>
+          <div id="stat-grid" class="stat-grid"></div>
+          <div id="selected-summary" class="selected-summary"></div>
+        </section>
+
+        <section class="panel panel-accessories">
+          <div class="panel-heading">
+            <h2>Accessories</h2>
+          </div>
+          <div id="accessory-summary" class="selected-summary"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="option-card-template">
+      <button class="option-card" type="button">
+        <span class="option-topline"></span>
+        <strong class="option-name"></strong>
+        <span class="option-description"></span>
+        <span class="option-bonuses"></span>
+      </button>
+    </template>
+
+    <template id="ownership-row-template">
+      <label class="ownership-option">
+        <input type="checkbox" />
+        <span class="ownership-name"></span>
+      </label>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
