@@ -138,6 +138,7 @@ h1 {
   gap: 12px;
 }
 
+.ownership-dropdown,
 .ownership-slot {
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -145,6 +146,7 @@ h1 {
   overflow: hidden;
 }
 
+.ownership-dropdown summary,
 .ownership-slot summary {
   cursor: pointer;
   list-style: none;
@@ -155,20 +157,43 @@ h1 {
   padding: 12px 14px;
 }
 
+.ownership-dropdown summary::-webkit-details-marker,
 .ownership-slot summary::-webkit-details-marker {
   display: none;
 }
 
+.ownership-dropdown summary span,
 .ownership-slot summary span {
   color: var(--muted);
   font-size: 0.82rem;
+}
+
+.ownership-slot-group {
+  padding: 0 14px 14px;
+}
+
+.ownership-slot-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 0 10px;
+  color: var(--accent);
+  font-family: "Archivo", sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.ownership-slot-heading::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
 }
 
 .ownership-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 8px;
-  padding: 0 14px 14px;
 }
 
 .ownership-option {

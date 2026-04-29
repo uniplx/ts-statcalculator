@@ -125,7 +125,8 @@ const accessories = [
   ["arm", "bararaq-extremity", "Bararaq Extremity", 10, 1, 10, 0, 1, 0],
   ["leg", "shinigami-raid-suit-legs", "Shinigami Raid Suit (Legs)", 10, 0, 5, 0, 0, 0],
   ["leg", "tiger-kings-pants", "Tiger King's Pants", 1, 2.5, 5, 1, 0, 0],
-  ["emblem", "shinsei", "Shinsei", 8, 2.5, 0, 2, 5, 5],
+  ["leg", "mark-of-the-dead-legs", "Mark of the Dead (Legs)", 3, 0.5, 10, 1.2, 0, 0],
+  ["emblem", "shinsei", "Shinsei", 8, 2, 0, 4, 8, 0],
   ["emblem", "frisky", "Frisky", 7, 0, 0, 2, 0, 0],
   ["face", "dreadful-bone-mask", "Dreadful Bone Mask", 8, 4, 2.5, 1.5, 0, 0],
   ["emblem", "starrk-pelt", "Starrk Pelt", 8, 0, 5, 1.5, 0, 0],
@@ -140,6 +141,9 @@ const accessories = [
 
 const initialAccessoryState = Object.fromEntries(accessorySlots.map((slot) => [slot, ""]));
 const initialOwnedAccessoryState = Object.fromEntries(accessories.map((accessory) => [accessory.id, true]));
+const ACCESSORY_DEFENSE_CAP = Number.POSITIVE_INFINITY;
+const DEFENSE_SOFT_CAP_START = 35;
+const DEFENSE_SOFT_CAP_MULTIPLIER = 0.7;
 const accessoryOptimizeTargets = [
   ["effectiveHealth", "Effective Health"],
   ["hp", "HP"],
@@ -164,6 +168,8 @@ const state = {
   accessoryOptimizeTarget: "effectiveHealth",
   hollowVariant: "base",
   quincyDefenseMode: "blut",
+  quincyTrueBlut: false,
+  quincyOverkill: false,
   shinigamiDefenseVariant: false,
   includeRegenInEhp: false,
 };
@@ -267,7 +273,7 @@ function getRaceBuffBonuses() {
 
   if (state.race === "hollow") {
     if (state.hollowVariant === "base" || state.hollowVariant === "ancient-vasto") bonuses.defense += 8;
-    if (state.hollowVariant === "hierro") bonuses.defense += 15;
+    if (state.hollowVariant === "hierro") bonuses.defense += 12.5;
     if (state.hollowVariant === "ancient-vasto") {
       bonuses.regenPerSecond += 0.7;
     }
@@ -277,9 +283,9 @@ function getRaceBuffBonuses() {
   }
 
   if (state.race === "quincy") {
-    if (state.quincyDefenseMode === "blut") bonuses.defense += 15;
-    if (state.quincyDefenseMode === "blut-variant") bonuses.defense += 20;
-    if (state.quincyDefenseMode === "boost-variant") bonuses.defense += 23.5;
+    if (state.quincyDefenseMode === "blut") bonuses.defense += 8;
+    if (state.quincyDefenseMode === "blut-variant") bonuses.defense += 12.5;
+    if (state.quincyOverkill) bonuses.defense += 10;
   }
 
   if (state.race === "shinigami" && state.shinigamiDefenseVariant) {
@@ -287,6 +293,11 @@ function getRaceBuffBonuses() {
   }
 
   return bonuses;
+}
+
+function applyDefenseSoftCap(defense) {
+  if (defense <= DEFENSE_SOFT_CAP_START) return defense;
+  return DEFENSE_SOFT_CAP_START + (defense - DEFENSE_SOFT_CAP_START) * DEFENSE_SOFT_CAP_MULTIPLIER;
 }
 
 function calcStats(accessoryState = state.accessories) {
@@ -306,7 +317,7 @@ function calcStats(accessoryState = state.accessories) {
   const raceBuffBonuses = getRaceBuffBonuses();
   const nonAccessoryDefenseBonus = (clanBonuses.defense ?? 0) + (raceBuffBonuses.defense ?? 0);
   const accessoryDefenseBonus = accessoryBonuses.defense ?? 0;
-  const accessoryDefenseUsed = Math.min(accessoryDefenseBonus, 23);
+  const accessoryDefenseUsed = Math.min(accessoryDefenseBonus, ACCESSORY_DEFENSE_CAP);
 
   const totalBonus = Object.fromEntries(
     Object.keys(baseStats).map((key) => [
@@ -316,11 +327,12 @@ function calcStats(accessoryState = state.accessories) {
   );
 
   const hp = baseStats.hp + totalBonus.hp;
-  const defense = baseStats.defense + totalBonus.defense;
-  const cappedDefense = baseStats.defense + accessoryDefenseUsed + nonAccessoryDefenseBonus;
+  const defense = baseStats.defense + accessoryDefenseUsed + nonAccessoryDefenseBonus;
+  const cappedDefense = defense;
+  const effectiveDefense = applyDefenseSoftCap(cappedDefense);
   const regenPerSecond = baseStats.regenPerSecond + totalBonus.regenPerSecond;
   const regenContribution = state.includeRegenInEhp ? regenPerSecond * 60 : 0;
-  const effectiveHealth = Math.round((hp + regenContribution) / Math.max(0.01, 1 - cappedDefense / 100));
+  const effectiveHealth = Math.round((hp + regenContribution) / Math.max(0.01, 1 - effectiveDefense / 100));
 
   return {
     hp,
@@ -329,6 +341,7 @@ function calcStats(accessoryState = state.accessories) {
     reiatsu: baseStats.reiatsu + totalBonus.reiatsu,
     defense,
     cappedDefense,
+    effectiveDefense,
     regenPerSecond,
     meterGain: baseStats.meterGain + totalBonus.meterGain,
     reducedMeterDrain: baseStats.reducedMeterDrain + totalBonus.reducedMeterDrain,
@@ -342,6 +355,8 @@ function calcStats(accessoryState = state.accessories) {
     accessoryDefenseBonus,
     accessoryDefenseUsed,
     nonAccessoryDefenseBonus,
+    softCapStart: DEFENSE_SOFT_CAP_START,
+    softCapMultiplier: DEFENSE_SOFT_CAP_MULTIPLIER,
     regenPerSecondBonus: totalBonus.regenPerSecond,
     meterGainBonus: totalBonus.meterGain,
     reducedMeterDrainBonus: totalBonus.reducedMeterDrain,
@@ -349,36 +364,42 @@ function calcStats(accessoryState = state.accessories) {
     specialDurationBonus: totalBonus.specialDuration,
     specialLabel: clan?.specialLabel || specialLabelForRace(state.race),
     regenIncludedInEhp: state.includeRegenInEhp,
+    breakdown: {
+      clan: clanBonuses,
+      accessory: accessoryBonuses,
+      variant: raceBuffBonuses,
+    },
   };
 }
 
 function getBuffStatesForRace(raceId) {
   if (raceId === "hollow") {
     return [
-      { hollowVariant: "proficiency", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
-      { hollowVariant: "base", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
-      { hollowVariant: "hierro", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
-      { hollowVariant: "ancient-vasto", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
+      { hollowVariant: "proficiency", quincyDefenseMode: "blut", quincyTrueBlut: false, quincyOverkill: false, shinigamiDefenseVariant: false },
+      { hollowVariant: "base", quincyDefenseMode: "blut", quincyTrueBlut: false, quincyOverkill: false, shinigamiDefenseVariant: false },
+      { hollowVariant: "hierro", quincyDefenseMode: "blut", quincyTrueBlut: false, quincyOverkill: false, shinigamiDefenseVariant: false },
+      { hollowVariant: "ancient-vasto", quincyDefenseMode: "blut", quincyTrueBlut: false, quincyOverkill: false, shinigamiDefenseVariant: false },
     ];
   }
 
   if (raceId === "quincy") {
     return [
-      { hollowVariant: "base", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
-      { hollowVariant: "base", quincyDefenseMode: "blut-variant", shinigamiDefenseVariant: false },
-      { hollowVariant: "base", quincyDefenseMode: "boost-variant", shinigamiDefenseVariant: false },
+      { hollowVariant: "base", quincyDefenseMode: "blut", quincyTrueBlut: false, quincyOverkill: false, shinigamiDefenseVariant: false },
+      { hollowVariant: "base", quincyDefenseMode: "blut", quincyTrueBlut: false, quincyOverkill: true, shinigamiDefenseVariant: false },
+      { hollowVariant: "base", quincyDefenseMode: "blut-variant", quincyTrueBlut: false, quincyOverkill: false, shinigamiDefenseVariant: false },
+      { hollowVariant: "base", quincyDefenseMode: "blut-variant", quincyTrueBlut: false, quincyOverkill: true, shinigamiDefenseVariant: false },
     ];
   }
 
   if (raceId === "shinigami") {
     return [
-      { hollowVariant: "base", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
-      { hollowVariant: "base", quincyDefenseMode: "blut", shinigamiDefenseVariant: true },
+      { hollowVariant: "base", quincyDefenseMode: "blut", quincyTrueBlut: false, quincyOverkill: false, shinigamiDefenseVariant: false },
+      { hollowVariant: "base", quincyDefenseMode: "blut", quincyTrueBlut: false, quincyOverkill: false, shinigamiDefenseVariant: true },
     ];
   }
 
   return [
-    { hollowVariant: "base", quincyDefenseMode: "blut", shinigamiDefenseVariant: false },
+    { hollowVariant: "base", quincyDefenseMode: "blut", quincyTrueBlut: false, quincyOverkill: false, shinigamiDefenseVariant: false },
   ];
 }
 
@@ -427,12 +448,13 @@ function addAccessoryBonusTotals(left, right) {
 
 function buildStatsFromAccessoryBonuses(baseBuildStats, accessoryBonuses) {
   const accessoryDefenseBonus = accessoryBonuses.defense ?? 0;
-  const accessoryDefenseUsed = Math.min(accessoryDefenseBonus, 25);
-  const cappedDefense = baseBuildStats.nonAccessoryDefenseBonus + accessoryDefenseUsed;
+  const accessoryDefenseUsed = Math.min(accessoryDefenseBonus, ACCESSORY_DEFENSE_CAP);
+  const cappedDefense = baseStats.defense + baseBuildStats.nonAccessoryDefenseBonus + accessoryDefenseUsed;
+  const effectiveDefense = applyDefenseSoftCap(cappedDefense);
   const regenPerSecond = baseBuildStats.regenPerSecond + (accessoryBonuses.regenPerSecond ?? 0);
   const regenContribution = state.includeRegenInEhp ? regenPerSecond * 60 : 0;
   const hp = baseBuildStats.hp + (accessoryBonuses.hp ?? 0);
-  const effectiveHealth = Math.round((hp + regenContribution) / Math.max(0.01, 1 - cappedDefense / 100));
+  const effectiveHealth = Math.round((hp + regenContribution) / Math.max(0.01, 1 - effectiveDefense / 100));
 
   return {
     hp,
@@ -441,6 +463,7 @@ function buildStatsFromAccessoryBonuses(baseBuildStats, accessoryBonuses) {
     reiatsu: baseBuildStats.reiatsu + (accessoryBonuses.reiatsu ?? 0),
     defense: baseBuildStats.defense + accessoryDefenseBonus,
     cappedDefense,
+    effectiveDefense,
     regenPerSecond,
     meterGain: baseBuildStats.meterGain + (accessoryBonuses.meterGain ?? 0),
     reducedMeterDrain: baseBuildStats.reducedMeterDrain + (accessoryBonuses.reducedMeterDrain ?? 0),
@@ -454,6 +477,8 @@ function buildStatsFromAccessoryBonuses(baseBuildStats, accessoryBonuses) {
     accessoryDefenseBonus,
     accessoryDefenseUsed,
     nonAccessoryDefenseBonus: baseBuildStats.nonAccessoryDefenseBonus,
+    softCapStart: DEFENSE_SOFT_CAP_START,
+    softCapMultiplier: DEFENSE_SOFT_CAP_MULTIPLIER,
     regenPerSecondBonus: baseBuildStats.regenPerSecondBonus + (accessoryBonuses.regenPerSecond ?? 0),
     meterGainBonus: baseBuildStats.meterGainBonus + (accessoryBonuses.meterGain ?? 0),
     reducedMeterDrainBonus: baseBuildStats.reducedMeterDrainBonus + (accessoryBonuses.reducedMeterDrain ?? 0),
@@ -516,7 +541,7 @@ function getBestAccessoryStateForEffectiveHealth(baseBuildStats, ownedOptionsByS
     options.forEach((option) => {
       frontier.forEach((entry) => {
         const bonuses = option ? addAccessoryBonusTotals(entry.bonuses, option.bonuses) : { ...entry.bonuses };
-        const defenseKey = Math.round(Math.min(bonuses.defense, 25) * 10);
+        const defenseKey = Math.round(Math.min(bonuses.defense, ACCESSORY_DEFENSE_CAP) * 10);
         const candidateState = { ...entry.state, [slot]: option?.id ?? "" };
         const candidateStats = buildStatsFromAccessoryBonuses(baseBuildStats, bonuses);
         const existing = nextFrontier.get(defenseKey);
@@ -574,6 +599,8 @@ function getBestMetaClanBuildForRace(raceId) {
     const bestBuffState = getBestBuffStateForCurrentRaceAndClan(raceId);
     state.hollowVariant = bestBuffState.hollowVariant;
     state.quincyDefenseMode = bestBuffState.quincyDefenseMode;
+    state.quincyTrueBlut = bestBuffState.quincyTrueBlut;
+    state.quincyOverkill = bestBuffState.quincyOverkill;
     state.shinigamiDefenseVariant = bestBuffState.shinigamiDefenseVariant;
 
     const bestAccessories = getBestAccessoryStateForCurrentBuild("effectiveHealth");
@@ -601,6 +628,8 @@ function getBestBuffStateForCurrentRaceAndClan(raceId) {
   buffCandidates.forEach((buffState) => {
     state.hollowVariant = buffState.hollowVariant;
     state.quincyDefenseMode = buffState.quincyDefenseMode;
+    state.quincyTrueBlut = buffState.quincyTrueBlut;
+    state.quincyOverkill = buffState.quincyOverkill;
     state.shinigamiDefenseVariant = buffState.shinigamiDefenseVariant;
     const candidateStats = calcStats(initialAccessoryState);
     if (isBetterStatLine(candidateStats, bestStats)) {
@@ -619,6 +648,8 @@ function applyBestMetaBuild(raceId) {
     accessories: { ...state.accessories },
     hollowVariant: state.hollowVariant,
     quincyDefenseMode: state.quincyDefenseMode,
+    quincyTrueBlut: state.quincyTrueBlut,
+    quincyOverkill: state.quincyOverkill,
     shinigamiDefenseVariant: state.shinigamiDefenseVariant,
   };
   const bestBuild = getBestMetaClanBuildForRace(raceId);
@@ -628,6 +659,8 @@ function applyBestMetaBuild(raceId) {
     state.accessories = previousState.accessories;
     state.hollowVariant = previousState.hollowVariant;
     state.quincyDefenseMode = previousState.quincyDefenseMode;
+    state.quincyTrueBlut = previousState.quincyTrueBlut;
+    state.quincyOverkill = previousState.quincyOverkill;
     state.shinigamiDefenseVariant = previousState.shinigamiDefenseVariant;
     return;
   }
@@ -637,6 +670,8 @@ function applyBestMetaBuild(raceId) {
   state.clan = bestBuild.clan.id;
   state.hollowVariant = bestBuild.buffState.hollowVariant;
   state.quincyDefenseMode = bestBuild.buffState.quincyDefenseMode;
+  state.quincyTrueBlut = bestBuild.buffState.quincyTrueBlut;
+  state.quincyOverkill = bestBuild.buffState.quincyOverkill;
   state.shinigamiDefenseVariant = bestBuild.buffState.shinigamiDefenseVariant;
   state.accessories = { ...bestBuild.accessories };
   syncUrl();
@@ -650,6 +685,8 @@ function getBestFullBuildForTarget(target) {
     accessories: { ...state.accessories },
     hollowVariant: state.hollowVariant,
     quincyDefenseMode: state.quincyDefenseMode,
+    quincyTrueBlut: state.quincyTrueBlut,
+    quincyOverkill: state.quincyOverkill,
     shinigamiDefenseVariant: state.shinigamiDefenseVariant,
   };
   let bestResult = null;
@@ -665,6 +702,8 @@ function getBestFullBuildForTarget(target) {
       getBuffStatesForRace(race.id).forEach((buffState) => {
         state.hollowVariant = buffState.hollowVariant;
         state.quincyDefenseMode = buffState.quincyDefenseMode;
+        state.quincyTrueBlut = buffState.quincyTrueBlut;
+        state.quincyOverkill = buffState.quincyOverkill;
         state.shinigamiDefenseVariant = buffState.shinigamiDefenseVariant;
 
         const bestAccessories = getBestAccessoryStateForCurrentBuild(target);
@@ -675,6 +714,8 @@ function getBestFullBuildForTarget(target) {
           accessories: bestAccessories,
           hollowVariant: buffState.hollowVariant,
           quincyDefenseMode: buffState.quincyDefenseMode,
+          quincyTrueBlut: buffState.quincyTrueBlut,
+          quincyOverkill: buffState.quincyOverkill,
           shinigamiDefenseVariant: buffState.shinigamiDefenseVariant,
           stats,
         };
@@ -691,6 +732,8 @@ function getBestFullBuildForTarget(target) {
   state.accessories = previousState.accessories;
   state.hollowVariant = previousState.hollowVariant;
   state.quincyDefenseMode = previousState.quincyDefenseMode;
+  state.quincyTrueBlut = previousState.quincyTrueBlut;
+  state.quincyOverkill = previousState.quincyOverkill;
   state.shinigamiDefenseVariant = previousState.shinigamiDefenseVariant;
 
   return bestResult;
@@ -707,6 +750,8 @@ function applyBestBuildForTarget(target) {
   state.accessories = { ...bestBuild.accessories };
   state.hollowVariant = bestBuild.hollowVariant;
   state.quincyDefenseMode = bestBuild.quincyDefenseMode;
+  state.quincyTrueBlut = bestBuild.quincyTrueBlut;
+  state.quincyOverkill = bestBuild.quincyOverkill;
   state.shinigamiDefenseVariant = bestBuild.shinigamiDefenseVariant;
   syncUrl();
   rerender();
@@ -717,6 +762,7 @@ function renderControls() {
   renderRaceSelect();
   renderGroup("Clan", state.race ? `${getClanPool().length} clans` : "Select race first", getClanPool(), "clan", !state.race);
   renderRaceBuffControls();
+  renderExtraBuffControls();
   renderAccessoryControls();
 }
 
@@ -841,9 +887,6 @@ function renderAccessoryControls() {
   titleRow.appendChild(actions);
 
   header.appendChild(titleRow);
-  const hintText = document.createElement("span");
-  hintText.textContent = "One per slot. Equip Best only uses accessories marked as owned.";
-  header.appendChild(hintText);
 
   const grid = document.createElement("div");
   grid.className = "accessory-grid";
@@ -879,21 +922,23 @@ function renderAccessoryControls() {
     grid.appendChild(field);
   });
 
+  const ownershipDetails = document.createElement("details");
+  ownershipDetails.className = "ownership-dropdown";
+  ownershipDetails.open = state.ownershipOpenSlots.all ?? false;
+  ownershipDetails.addEventListener("toggle", () => {
+    state.ownershipOpenSlots.all = ownershipDetails.open;
+  });
+
+  const ownedCount = Object.values(state.ownedAccessories).filter(Boolean).length;
+  ownershipDetails.innerHTML = `<summary><strong>Owned Accessories</strong><span>${ownedCount}/${accessories.length} owned</span></summary>`;
+
   const ownershipGroup = document.createElement("div");
   ownershipGroup.className = "ownership-groups";
 
   accessorySlots.forEach((slot) => {
-    const details = document.createElement("details");
-    details.className = "ownership-slot";
-    details.open = state.ownershipOpenSlots[slot] ?? false;
-    details.addEventListener("toggle", () => {
-      state.ownershipOpenSlots[slot] = details.open;
-    });
-
-    const ownedCount = getOwnedAccessoryOptions(slot).length;
-    const totalCount = getAccessoryOptions(slot).length;
-    details.innerHTML = `<summary><strong>Owned ${titleCase(slot)}</strong><span>${ownedCount}/${totalCount} owned</span></summary>`;
-
+    const slotGroup = document.createElement("section");
+    slotGroup.className = "ownership-slot-group";
+    slotGroup.innerHTML = `<div class="ownership-slot-heading"><span>${titleCase(slot)}</span></div>`;
     const list = document.createElement("div");
     list.className = "ownership-list";
 
@@ -914,11 +959,12 @@ function renderAccessoryControls() {
       list.appendChild(row);
     });
 
-    details.appendChild(list);
-    ownershipGroup.appendChild(details);
+    slotGroup.appendChild(list);
+    ownershipGroup.appendChild(slotGroup);
   });
 
-  section.append(header, grid, ownershipGroup);
+  ownershipDetails.appendChild(ownershipGroup);
+  section.append(header, grid, ownershipDetails);
   elements.controlGroups.appendChild(section);
 }
 
@@ -930,7 +976,7 @@ function renderRaceBuffControls() {
 
   const header = document.createElement("div");
   header.className = "control-group-header";
-  header.innerHTML = "<h3>Buffs</h3><span>Race-based estimates</span>";
+  header.innerHTML = "<h3>Variants</h3>";
 
   const grid = document.createElement("div");
   grid.className = "accessory-grid";
@@ -942,7 +988,7 @@ function renderRaceBuffControls() {
       <select class="field-select" id="hollow-variant-select">
         <option value="proficiency">Proficiency (No Hierro)</option>
         <option value="base">Base Hierro (8% Defense)</option>
-        <option value="hierro">Hierro Variant (+7%, 15% Total)</option>
+        <option value="hierro">Hierro Variant (12.5% Defense)</option>
         <option value="ancient-vasto">Ancient Vasto (8% Defense, 0.7 Regen)</option>
       </select>`;
     field.querySelector("select").value = state.hollowVariant;
@@ -954,12 +1000,12 @@ function renderRaceBuffControls() {
     field.className = "field-control";
     field.innerHTML = `<span>Quincy Defense Mode</span>
       <select class="field-select" id="quincy-defense-mode-select">
-        <option value="blut">Blut (15% Defense)</option>
-        <option value="blut-variant">Blut Variant (20% Total)</option>
-        <option value="boost-variant">Boost Variant (23.5% Total)</option>
+        <option value="blut">Blut (8% Defense)</option>
+        <option value="blut-variant">Letzt Blut Variant (12.5% Defense)</option>
       </select>`;
     field.querySelector("select").value = state.quincyDefenseMode;
     grid.appendChild(field);
+
   }
 
   if (state.race === "shinigami") {
@@ -968,6 +1014,28 @@ function renderRaceBuffControls() {
     defenseVariant.innerHTML = `<input type="checkbox" id="shinigami-defense-variant" ${state.shinigamiDefenseVariant ? "checked" : ""} /><span>Vizard Defense Variant (+5% Defense)</span>`;
     grid.appendChild(defenseVariant);
   }
+
+  section.append(header, grid);
+  elements.controlGroups.appendChild(section);
+}
+
+function renderExtraBuffControls() {
+  if (state.race !== "quincy") return;
+
+  const section = document.createElement("section");
+  section.className = "control-group";
+
+  const header = document.createElement("div");
+  header.className = "control-group-header";
+  header.innerHTML = "<h3>Extra Buffs</h3>";
+
+  const grid = document.createElement("div");
+  grid.className = "accessory-grid";
+
+  const overkill = document.createElement("label");
+  overkill.className = "toggle-control";
+  overkill.innerHTML = `<input type="checkbox" id="quincy-overkill" ${state.quincyOverkill ? "checked" : ""} /><span>Overkill (+10% Defense)</span>`;
+  grid.appendChild(overkill);
 
   section.append(header, grid);
   elements.controlGroups.appendChild(section);
@@ -985,6 +1053,26 @@ function formatBonuses(bonuses, specialLabel = "Special Duration") {
   if (bonuses.modeDuration) parts.push(`+${bonuses.modeDuration}% Mode`);
   if (bonuses.specialDuration) parts.push(`+${bonuses.specialDuration}% ${specialLabel.replace(" Duration", "")}`);
   return parts.join(" | ") || "No bonus";
+}
+
+function formatStatNumber(value) {
+  return Number.isInteger(value) ? `${value}` : value.toFixed(1).replace(/\.0$/, "");
+}
+
+function formatSignedStat(value, suffix = "") {
+  return `+${formatStatNumber(value)}${suffix}`;
+}
+
+function formatStatBreakdown(stats, key, suffix = "") {
+  const parts = [`Base ${formatStatNumber(baseStats[key] ?? 0)}${suffix}`];
+  const clanValue = stats.breakdown.clan[key] ?? 0;
+  const accessoryValue = stats.breakdown.accessory[key] ?? 0;
+  const variantValue = stats.breakdown.variant[key] ?? 0;
+
+  if (clanValue) parts.push(`Clan ${formatSignedStat(clanValue, suffix)}`);
+  if (accessoryValue) parts.push(`Accessory ${formatSignedStat(accessoryValue, suffix)}`);
+  if (variantValue) parts.push(`Variant ${formatSignedStat(variantValue, suffix)}`);
+  return parts.join(" | ");
 }
 
 function selectOption(key, id) {
@@ -1006,19 +1094,17 @@ function renderStats() {
   statDefinitions.forEach((definition) => {
     const label = definition.key === "specialDuration" ? stats.specialLabel : definition.label;
     const value = stats[definition.key];
-    const bonus = stats[`${definition.key}Bonus`];
     if (value <= 0) return;
-    const baseValue = baseStats[definition.key];
     const suffix = definition.suffix ?? "";
     const card = document.createElement("article");
     card.className = "stat-card";
     const meta =
       definition.key === "effectiveHealth"
-        ? `Accessory defense used: ${stats.accessoryDefenseUsed}% of ${stats.accessoryDefenseBonus}% | Total defense used: ${stats.cappedDefense}%${stats.regenIncludedInEhp ? " | Regen included" : " | Regen ignored"} | Bonus +${bonus}${suffix}`
+        ? `Effective Defense: ${formatStatNumber(stats.effectiveDefense)}% | Total Health: ${formatStatNumber(stats.hp)}`
         : definition.key === "defense"
-          ? `Accessory defense: ${stats.accessoryDefenseBonus}% (${stats.accessoryDefenseUsed}% used) | Other defense: ${stats.nonAccessoryDefenseBonus}% | EHP uses ${stats.cappedDefense}%`
-          : `Base ${baseValue}${suffix} | Bonus +${bonus}${suffix}`;
-    card.innerHTML = `<span class="stat-label">${label}</span><div class="stat-value-row"><span class="stat-value">${value}${suffix}</span></div><div class="stat-meta">${meta}</div>`;
+          ? `Base +${formatStatNumber(baseStats.defense)}% | Accessory +${formatStatNumber(stats.accessoryDefenseUsed)}% | Buffs +${formatStatNumber(stats.nonAccessoryDefenseBonus)}% | Effective ${formatStatNumber(stats.effectiveDefense)}%`
+          : formatStatBreakdown(stats, definition.key, suffix);
+    card.innerHTML = `<span class="stat-label">${label}</span><div class="stat-value-row"><span class="stat-value">${formatStatNumber(value)}${suffix}</span></div><div class="stat-meta">${meta}</div>`;
     const valueRow = card.querySelector(".stat-value-row");
     const optimizeButton = document.createElement("button");
     optimizeButton.type = "button";
@@ -1034,33 +1120,11 @@ function renderSummary() {
   const race = getRace();
   const clan = getClan();
   const selectedAccessories = getSelectedAccessories();
-  const raceBuffs = getRaceBuffBonuses();
-  const ownedCount = Object.values(state.ownedAccessories).filter(Boolean).length;
-  const optimizeLabel = accessoryOptimizeTargets.find(([value]) => value === state.accessoryOptimizeTarget)?.[1] ?? "Effective Health";
   elements.summary.innerHTML = "";
   elements.accessorySummary.innerHTML = "";
 
   addSummaryCard("Race", race ? race.name : "None");
   addSummaryCard("Clan", clan ? `${clan.name} (${clan.rarity} | ${clan.dropRate})` : "None");
-  addSummaryCard("Clan Passive", clan ? `${clan.passiveName}: ${clan.passive}` : "None");
-
-  if (clan) {
-    addSummaryCard("Clan Bonuses", formatBonuses(clan.bonuses, clan.specialLabel || specialLabelForRace(state.race)));
-  }
-
-  if (state.race && formatBonuses(raceBuffs) !== "No bonus") {
-    addSummaryCard("Race Buffs", formatBonuses(raceBuffs, specialLabelForRace(state.race)));
-  }
-
-  addSummaryCard("Accessory Optimizer", `Targeting ${optimizeLabel}. Owned pool: ${ownedCount}/${accessories.length} accessories.`);
-
-  if (selectedAccessories.length > 0) {
-    const stats = calcStats();
-    addSummaryCard(
-      "Defense Rule",
-      `Accessories give ${stats.accessoryDefenseBonus}% defense, but only ${stats.accessoryDefenseUsed}% counts toward EHP. Race and variant defense add on top for ${stats.cappedDefense}% total EHP defense.`
-    );
-  }
 
   if (selectedAccessories.length > 0) {
     selectedAccessories.forEach((accessory) => {
@@ -1095,6 +1159,7 @@ function syncUrl() {
   if (state.clanSort !== "default") params.set("sort", state.clanSort);
   if (state.hollowVariant !== "base") params.set("hollowVariant", state.hollowVariant);
   if (state.quincyDefenseMode !== "blut") params.set("quincyDefenseMode", state.quincyDefenseMode);
+  if (state.quincyOverkill) params.set("quincyOverkill", "1");
   if (state.shinigamiDefenseVariant) params.set("shinigamiDefenseVariant", "1");
   const excluded = accessories.filter((accessory) => !isAccessoryOwned(accessory.id)).map((accessory) => accessory.id);
   if (excluded.length > 0) params.set("exclude", excluded.join(","));
@@ -1135,9 +1200,11 @@ function loadStateFromUrl() {
     state.hollowVariant = hollowVariant;
   }
   const quincyDefenseMode = params.get("quincyDefenseMode");
-  if (["blut", "blut-variant", "boost-variant"].includes(quincyDefenseMode)) {
+  if (["blut", "blut-variant"].includes(quincyDefenseMode)) {
     state.quincyDefenseMode = quincyDefenseMode;
   }
+  state.quincyTrueBlut = false;
+  state.quincyOverkill = params.get("quincyOverkill") === "1";
   state.shinigamiDefenseVariant = params.get("shinigamiDefenseVariant") === "1";
   const excluded = new Set((params.get("exclude") ?? "").split(",").filter(Boolean));
   accessories.forEach((accessory) => {
@@ -1162,6 +1229,8 @@ function resetBuild() {
   state.accessoryOptimizeTarget = "effectiveHealth";
   state.hollowVariant = "base";
   state.quincyDefenseMode = "blut";
+  state.quincyTrueBlut = false;
+  state.quincyOverkill = false;
   state.shinigamiDefenseVariant = false;
   state.includeRegenInEhp = false;
   syncUrl();
@@ -1198,7 +1267,11 @@ elements.raceSelect.addEventListener("change", (event) => {
   state.race = nextRace;
   if (!getClanPool().some((clan) => clan.id === state.clan)) state.clan = null;
   if (state.race !== "hollow") state.hollowVariant = "base";
-  if (state.race !== "quincy") state.quincyDefenseMode = "blut";
+  if (state.race !== "quincy") {
+    state.quincyDefenseMode = "blut";
+    state.quincyTrueBlut = false;
+    state.quincyOverkill = false;
+  }
   if (state.race !== "shinigami") state.shinigamiDefenseVariant = false;
   syncUrl();
   rerender();
@@ -1227,12 +1300,16 @@ document.addEventListener("change", (event) => {
     state.metaRace = "";
     state.quincyDefenseMode = event.target.value;
   }
+  if (event.target.id === "quincy-overkill") {
+    state.metaRace = "";
+    state.quincyOverkill = event.target.checked;
+  }
   if (event.target.id === "shinigami-defense-variant") {
     state.metaRace = "";
     state.shinigamiDefenseVariant = event.target.checked;
   }
   if (
-    ["hollow-variant-select", "quincy-defense-mode-select", "shinigami-defense-variant"].includes(
+    ["hollow-variant-select", "quincy-defense-mode-select", "quincy-overkill", "shinigami-defense-variant"].includes(
       event.target.id
     )
   ) {
