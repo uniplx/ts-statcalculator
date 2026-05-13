@@ -90,6 +90,7 @@ const clans = [
 
 const accessories = [
   ["head", "nerd-o-lantern", "Nerd o' lantern", 10, 5, 10, 5, 0, 0],
+  ["head", "soul-pearl", "Soul Pearl", 6, 1.8, 0, 0, 0, 0],
   ["head", "vampire-hunter-hat", "Vampire Hunter Hat", 15, 1, 5, 0, 0, 0],
   ["head", "white-kirishima-horns", "White Kirishima Horns", 5, 1, 5, 3, 3, 0],
   ["head", "wreath-of-victory", "Wreath of Victory", 5, 1, 5, 3, 0, 0],
