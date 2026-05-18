@@ -89,24 +89,33 @@ const clans = [
 }));
 
 const accessories = [
-  ["head", "nerd-o-lantern", "Nerd o' lantern", 10, 5, 10, 5, 0, 0],
+  ["head", "nerd-o-lantern", "Nerd o' Lantern", 10, 5, 10, 5, 0, 0],
   ["head", "soul-pearl", "Soul Pearl", 6, 1.8, 0, 0, 0, 0],
   ["head", "vampire-hunter-hat", "Vampire Hunter Hat", 15, 1, 5, 0, 0, 0],
   ["head", "white-kirishima-horns", "White Kirishima Horns", 5, 1, 5, 3, 3, 0],
   ["head", "wreath-of-victory", "Wreath of Victory", 5, 1, 5, 3, 0, 0],
   ["head", "laurel-crown", "Laurel Crown", 15, 0, 5, 2.5, 0, 0],
   ["head", "spectral-crown", "Spectral Crown", 8, 2, 15, 2.5, 0, 0],
-  ["face", "reinvent-diadem", "Reinvent Diadem", 10, 2, 10, 2.5, 4, 0],
   ["head", "benevolent-scarlet", "Benevolent Scarlet", 4, 3, 0, 2, 0, 0],
+  ["head", "ikomikidomoes-horns", "Ikomikidomoe's Horns", 2, 10, 0, 7, 0, 0],
+
+  ["face", "cool-shades", "Cool Shades", 12, 2, 5, 3, 0, 2],
+  ["face", "reinvent-diadem", "Reinvent Diadem", 10, 2, 10, 2.5, 4, 0],
   ["face", "baraq-diadem", "Baraq Diadem", 10, 2, 5, 1, 0, 0],
   ["face", "elf-ears", "Elf Ears", 10, 1, 0, 1.5, 0, 0],
   ["face", "windy-elf-ears", "Windy Elf Ears", 10, 1.5, 5, 2.5, 0, 2],
   ["face", "bejewelled-earring", "Bejewelled Earring", 7, 1, 0, 2, 2, 4],
   ["face", "min-starrk-mask", "Min Starrk Mask", 15, 2, 0, 0, 0, 0],
+  ["face", "dreadful-bone-mask", "Dreadful Bone Mask", 8, 4, 2.5, 1.5, 0, 0],
+
   ["neck", "cursed-hood", "Cursed Hood", 10, 2.5, 10, 2, 0, 0],
   ["neck", "consortiums-profits", "Consortiums Profits", 7, 1.5, 0, 1, 2, 2],
+  ["neck", "ouroboros-pendant", "Ouroboros Pendant", 8, 2.5, 5, 2, 0, 0],
+
   ["shoulder", "mre-pin", "MRE Pin", 6, 0, 15, 0, 1, 0],
   ["shoulder", "ivory-pauldron", "Ivory Pauldron", 0, 0, 0, 0, 1.5, 3],
+
+  ["torso", "black-captain-cloak", "Black Captain Cloak", 20, 5.5, 0, 4, 0, 0],
   ["torso", "jailer-of-hell", "Jailer of Hell", 25, 5, 3, 2, 0, 0],
   ["torso", "cloak-of-void", "Cloak of Void", 25, 5, 3, 2, 0, 0],
   ["torso", "cloak-of-shine", "Cloak of Shine", 10, 5, 3, 2, 0, 0],
@@ -117,25 +126,35 @@ const accessories = [
   ["torso", "yhwach-almighty-cloak", "Yhwach Almighty Cloak", 13, 2, 5, 3, 0, 0],
   ["torso", "sunset-haori", "Sunset Haori", 12, 3, 15, 3, 0, 0],
   ["torso", "shinigami-gordeau-cloak", "Shinigami Gordeau Cloak", 7, 1, 0, 1.2, 2.5, 0],
+  ["torso", "mark-of-the-dead-body", "Mark of the Dead (Body)", 15, 5.5, 0, 3.5, 1, 2],
+  ["torso", "ikomikidomoes-crest", "Ikomikidomoe's Crest", 19, 10, 3, 3, 0, 0],
+  ["torso", "hikones-kimono", "Hikone's Kimono", 15, 7, 20, 3.5, 0, 0],
+
   ["back", "princes-cape", "Prince's Cape", 12, 0, 0, 1, 0, 0],
   ["back", "true-kalins-cape", "True Kalin's Cape", 10, 5.5, 0, 0.5, 0, 0],
   ["back", "soulfire-halo", "Soulfire Halo", 6, 4, 8, 2, 0, 0],
   ["back", "thunder-god-wheel", "Thunder God Wheel", 10, 2, 0, 0, 2, 4],
+
   ["waist", "monarchs-book", "Monarch's Book", 8, 2.5, 5, 2, 5, 5],
   ["waist", "strongest-tail", "Strongest Tail", 5, 3.5, 3, 0, 0, 0],
   ["waist", "sun-of-revival", "Sun of Revival", 3, 0, 0, 0, 1, 2],
+
+  ["arm", "garden-ties", "Garden Ties", 5, 5, 0, 2.5, 0, 0],
   ["arm", "berserker-wraps", "Berserker Wraps", 3, 2, 0, 2, 2.5, 0],
   ["arm", "mugetsu-wrapping", "Mugetsu Wrapping", 0, 0, 0, 0, 0, 5],
   ["arm", "bararaq-extremity", "Bararaq Extremity", 10, 1, 10, 0, 1, 0],
+  ["arm", "siphons-ticker", "Siphon's Ticker", 10, 1, 15, 0, 1, 0],
+
+  ["leg", "shinigami-raid-suit-pants", "Shinigami Raid Suit Pants", 10, 0, 5, 0, 0, 0],
   ["leg", "shinigami-raid-suit-legs", "Shinigami Raid Suit (Legs)", 10, 0, 5, 0, 0, 0],
   ["leg", "tiger-kings-pants", "Tiger King's Pants", 1, 2.5, 5, 1, 0, 0],
   ["leg", "mark-of-the-dead-legs", "Mark of the Dead (Legs)", 3, 0.5, 10, 1.2, 0, 0],
+
   ["emblem", "shinsei", "Shinsei", 8, 2, 0, 4, 8, 0],
   ["emblem", "frisky", "Frisky", 7, 0, 0, 2, 0, 0],
-  ["face", "dreadful-bone-mask", "Dreadful Bone Mask", 8, 4, 2.5, 1.5, 0, 0],
+  ["emblem", "shiny-frisky", "Shiny Frisky", 7, 0, 0, 2, 0, 0],
+  ["emblem", "meno-man", "Meno Man", 7, 0, 0, 2, 0, 0],
   ["emblem", "starrk-pelt", "Starrk Pelt", 8, 0, 5, 1.5, 0, 0],
-  ["torso", "mark-of-the-dead-body", "Mark of the Dead (Body)", 15, 5.5, 0, 3.5, 1, 2],
-  ["arm", "siphons-ticker", "Siphon's Ticker", 10, 1, 15, 0, 1, 0],
 ].map(([slot, id, name, hp, posture, reiatsu, defense, meterGain, reducedMeterDrain]) => ({
   slot,
   id,
